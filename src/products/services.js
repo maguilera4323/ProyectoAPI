@@ -1,6 +1,7 @@
 const{ObjectId}=require('mongodb')
 const debug=require('debug')('app:module-database')
 const{ Database } = require('../database/index')
+const {ProductsUtils} =require('./utils')
 
 const COLLECTION='productos';
 
@@ -35,10 +36,17 @@ const deleteProd=async(id)=>{
 }
 
 
+const generarReporte=async(name, res)=>{
+    let productos=await getAll();
+
+    ProductsUtils.excelGenerate(productos, name, res)
+}
+
 module.exports.ProductsService={
     create,
     getAll,
     getByID,
     update,
-    deleteProd
+    deleteProd,
+    generarReporte
 }
