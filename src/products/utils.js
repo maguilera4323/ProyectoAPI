@@ -1,34 +1,40 @@
-const excelGenerate =(products, name, res)=>{
-    const xl=require('excel4node')
+const excelGenerate = (products, name, res) => {
+    const xl = require('excel4node');
 
-    products=products.map((product)=>{
-        let id=product._id.toString();
-        delete product._id
-
-        return{
-            id,
-            ...product
-        }
-    })
+    // Mapear productos a la estructura adecuada para Excel
+    products = products.map((product) => {
+        console.log(product)
+        return {
+            ID: Number(product.ID), // Convertir ID a número
+            NOMBRE: product.NOMBRE,
+            PRECIO: parseFloat(product.PRECIO) // Convertir PRECIO a número de coma flotante
+        };
+    });
 
     let wb = new xl.Workbook();
-    let ws = wb.addWorksheet('Inventario')
+    let ws = wb.addWorksheet('Inventario');
 
-    for(let i=1; i<=products.length;i++){
-        for(let j=1; j<=Object.values(products[0]).length;j++){
-            let data= Object.values(products[i-1])[j-1];
+    // Escribir los encabezados de las columnas
+    const headers = Object.keys(products[0]);
+    headers.forEach((header, index) => {
+        ws.cell(1, index + 1).string(header);
+    });
 
-            if(typeof data==='string'){
-                ws.cell(i,j).string(data)
-            }else{
-                ws.cell(i,j).number(data)
+    // Escribir los datos de los productos en el archivo Excel
+    products.forEach((product, rowIndex) => {
+        Object.values(product).forEach((value, colIndex) => {
+            if (typeof value === 'string') {
+                ws.cell(rowIndex + 2, colIndex + 1).string(value);
+            } else {
+                ws.cell(rowIndex + 2, colIndex + 1).number(value);
             }
-        }
-    }
+        });
+    });
 
-    wb.write(`${name}.xlsx`, res)
-}
+    // Escribir el archivo Excel y enviarlo en la respuesta
+    wb.write(`${name}.xlsx`, res);
+};
 
-module.exports.ProductsUtils={
+module.exports.ProductsUtils = {
     excelGenerate
-}
+};
